@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="10dp"
+    android:paddingTop="6dp"
+    android:paddingRight="4dp"
+    android:paddingBottom="6dp">
+
+    <TextView
+        android:id="@+id/tv_session_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#1F1F1F"
+        android:textSize="13sp" />
+
+    <ImageButton
+        android:id="@+id/btn_rename_session"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="重命名"
+        android:focusable="false"
+        android:scaleType="centerInside"
+        android:src="@android:drawable/ic_menu_edit" />
+
+    <ImageButton
+        android:id="@+id/btn_delete_session"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="删除会话"
+        android:focusable="false"
+        android:scaleType="centerInside"
+        android:src="@android:drawable/ic_menu_delete" />
+</LinearLayout>

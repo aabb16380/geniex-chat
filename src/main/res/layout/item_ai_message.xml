@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="top"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <CheckBox
+        android:id="@+id/cb_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:clickable="false"
+        android:focusable="false"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_think_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:background="#F3F5F9"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingLeft="10dp"
+            android:paddingTop="6dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="6dp"
+            android:text="▸ 思考过程"
+            android:textColor="#7A8599"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_think_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:lineSpacingExtra="2dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:textColor="#9AA3B2"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.02"
+            android:linksClickable="true"
+            android:text="Hello, I am Assistant"
+            android:textColor="#1F1F1F"
+            android:textIsSelectable="true"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:id="@+id/ll_blocks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>

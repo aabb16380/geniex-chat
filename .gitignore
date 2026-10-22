@@ -1,0 +1,26 @@
+# Gradle / Android
+.gradle/
+build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+.kotlin/
+
+# IDE
+.idea/
+*.iml
+*.hprof
+
+# 签名文件：绝不入库
+*.jks
+*.keystore
+keystore.properties
+
+# 内置模型权重太大（数百 MB），不入库，见 README「内置模型」一节
+src/main/assets/qwen3-0.6b/*.gguf
+
+# 系统杂项
+.DS_Store
+Thumbs.db
+desktop.ini

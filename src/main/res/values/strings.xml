@@ -1,0 +1,67 @@
+<resources>
+    <string name="app_name">于神本地模型</string>
+    <string name="blank_index_tip">Please import files before starting your search.</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="btn_max_output">输出 %1$d</string>
+    <string name="max_output_title">单次输出上限</string>
+    <string name="max_output_hint">调大：回答更完整，但更慢、更热，长会话更容易被截断\n调小：更快，但可能话没说完就被截断</string>
+    <string name="max_output_unlimited">不限制</string>
+    <string name="cancel">取消</string>
+    <string name="ok">确定</string>
+    <string name="delete">删除</string>
+    <string name="back">返回</string>
+    <string name="model_info">详细信息</string>
+    <string name="model_info_title">模型能力与占用</string>
+
+    <string name="token_title">Token 用量</string>
+    <string name="token_empty">本会话还没有生成记录</string>
+    <string name="token_summary">轮数 %1$d · 累计输出 %2$d · 最近上下文 %3$d</string>
+    <string name="token_round">第 %1$d 轮 · %2$s</string>
+    <string name="token_detail">输入 %1$d · 输出 %2$d · %3$s tok/s</string>
+
+    <string name="generating_wait">正在生成，请稍候</string>
+    <string name="ctx_reset">检测到上下文异常，已自动重置运行时上下文</string>
+    <string name="ctx_too_long">上下文超出模型上限，请新建对话</string>
+
+    <string name="npu_only_title">该模型仅支持 NPU</string>
+    <string name="npu_only_msg">这是 NPU 预编译包，只能在 Hexagon NPU 上运行，没有 CPU/GPU 版本可选。\n上下文为 4096 tokens，对话过长时会自动裁剪较早的内容。</string>
+
+    <string name="rename_session">重命名会话</string>
+    <string name="del_message_title">删除这条消息？</string>
+    <string name="del_pair_user">同时删除对应的提问</string>
+    <string name="del_pair_assistant">同时删除对应的回答</string>
+    <string name="select_mode">选择</string>
+    <string name="npu_hint">仅支持 NPU（Hexagon）· 上下文 4096</string>
+
+    <string name="need_unload">请先卸载已加载的模型</string>
+    <string name="model_not_loaded">模型未加载</string>
+    <string name="unload_success">卸载成功</string>
+    <string name="unload_failed">卸载失败（错误码 %1$d）</string>
+    <string name="load_success">模型加载成功</string>
+    <string name="model_type_error">该模型类型暂不支持</string>
+    <string name="model_paths_missing">模型文件不可用，请先下载</string>
+    <string name="permission_denied">未授予权限</string>
+    <string name="camera_permission_denied">未授予相机权限</string>
+    <string name="save_image_failed">保存图片失败</string>
+    <string name="select_model_first">请先选择模型</string>
+
+    <string name="proxy_menu">🌐  网络代理…</string>
+    <string name="proxy_title">网络代理</string>
+    <string name="proxy_hint">HuggingFace 国内直连不通，下载会卡在 0% 然后失败。\n\n可以填一个代理地址，例如：\n1. 电脑上跑代理（如 Clash 7890）\n2. 执行 adb reverse tcp:7890 tcp:7890\n3. 这里填 127.0.0.1:7890\n\n留空 = 直连。</string>
+    <string name="proxy_saved">代理已保存，重新下载生效</string>
+    <string name="dl_stalled">连接超时 · 检查网络或代理</string>
+    <string name="resend_hint">上次回答被中断，点此重发</string>
+    <string name="resend_filled">已填回输入框，点发送即可重发</string>
+    <string name="resend_filled_image">已填回提问并恢复原图片，点发送即可重发</string>
+    <string name="load_model">加载</string>
+    <string name="ctx_on">上下文 开</string>
+    <string name="ctx_off">上下文 关</string>
+    <string name="ctx_enabled">已开启上下文：提问会带上前文</string>
+    <string name="ctx_disabled">已关闭上下文：每次提问独立</string>    <string name="clean_memory">清理内存</string>
+    <string name="mem_cleaned">已清理后台进程，释放内存</string>
+    <string name="download_failed_title">下载不成功</string>
+    <string name="download_failed_body">1. 检查网络连接\n2. 检查网络代理\n3. 如无法下载，请联系管理员提供安装包</string>
+    <string name="bundled_copying">首次启动，正在准备内置模型…</string>    <string name="send">发送</string>
+    <string name="stop_gen">停止</string>
+</resources>

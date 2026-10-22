@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingTop="8dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="4dp">
+
+    <TextView
+        android:id="@+id/tv_max_output_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#8A8A8A"
+        android:textSize="12sp" />
+
+    <RadioGroup
+        android:id="@+id/rg_max_output"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical" />
+</LinearLayout>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="think_expanded">▾ 思考过程</string>
+    <string name="think_collapsed">▸ 思考过程</string>
+</resources>

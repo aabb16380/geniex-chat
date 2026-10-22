@@ -1,0 +1,84 @@
+plugins {
+    id 'com.android.application' version '8.13.0'
+    id 'org.jetbrains.kotlin.android' version '2.2.0'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.0'
+}
+
+android {
+    namespace 'com.geniex.demo'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.geniex.demo'
+        minSdk 31
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    packaging {
+        jniLibs.useLegacyPackaging = true
+    }
+
+    // 内置的 GGUF 不要压缩，避免安装/读取变慢
+    androidResources {
+        noCompress 'gguf'
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    // GenieX Android binding（Apache-2.0，Maven Central）
+    implementation 'com.qualcomm.qti:geniex-android:0.3.5'
+
+    // 离线百科检索（libzim 全文索引）。
+    // 注意：libkiwix 是 GPL-3.0+，这决定了本项目的整体许可证也是 GPL-3.0。
+    implementation files('libs/libkiwix-2.6.0.aar')
+
+    // Kotlin
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3'
+
+    // AndroidX core
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+
+    // Material Components（提供主题）
+    implementation 'com.google.android.material:material:1.12.0'
+
+    // Markwon（Markdown 渲染）
+    implementation 'io.noties.markwon:core:4.6.2'
+    implementation 'io.noties.markwon:ext-strikethrough:4.6.2'
+    implementation 'io.noties.markwon:ext-tables:4.6.2'
+    implementation 'io.noties.markwon:linkify:4.6.2'
+    implementation 'io.noties.markwon:ext-latex:4.6.2'
+    implementation 'io.noties.markwon:inline-parser:4.6.2'
+
+    // 状态栏（immersionbar）
+    implementation 'com.geyifeng.immersionbar:immersionbar:3.2.2'
+    implementation 'com.geyifeng.immersionbar:immersionbar-ktx:3.2.2'
+
+    // 仪器化测试
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test:core:1.6.1'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+}

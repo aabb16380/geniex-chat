@@ -1,0 +1,15 @@
+# 统一换行符：源码/LF，Windows 批处理/CRLF
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+gradlew text eol=lf
+
+# 二进制文件不做文本转换
+*.aar binary
+*.jar binary
+*.gguf binary
+*.zim binary
+*.apk binary
+*.png binary
+*.jpg binary
+*.webp binary
