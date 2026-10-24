@@ -244,5 +244,86 @@
         "hub": "HUGGINGFACE",
         "type": "chat",
         "runtime": "llama_cpp"
+    },
+    {
+        "id": "Dolphin3.0-Llama3.2-1B-GGUF",
+        "displayName": "Dolphin3.0-Llama3.2-1B (GGUF, 无审查)",
+        "modelName": "bartowski/Dolphin3.0-Llama3.2-1B-GGUF",
+        "quant": "Q4_0",
+        "hub": "HUGGINGFACE",
+        "type": "chat",
+        "runtime": "llama_cpp"
+    },
+    {
+        "id": "Dolphin3.0-Qwen2.5-1.5B-GGUF",
+        "displayName": "Dolphin3.0-Qwen2.5-1.5B (GGUF, 无审查)",
+        "modelName": "bartowski/Dolphin3.0-Qwen2.5-1.5B-GGUF",
+        "quant": "Q4_0",
+        "hub": "HUGGINGFACE",
+        "type": "chat",
+        "runtime": "llama_cpp"
+    },
+    {
+        "id": "Dolphin3.0-Llama3.2-3B-GGUF",
+        "displayName": "Dolphin3.0-Llama3.2-3B (GGUF, 无审查)",
+        "modelName": "bartowski/Dolphin3.0-Llama3.2-3B-GGUF",
+        "quant": "Q4_0",
+        "hub": "HUGGINGFACE",
+        "type": "chat",
+        "runtime": "llama_cpp"
+    },
+    {
+        "id": "Dolphin3.0-Qwen2.5-3b-GGUF",
+        "displayName": "Dolphin3.0-Qwen2.5-3B (GGUF, 无审查)",
+        "modelName": "bartowski/Dolphin3.0-Qwen2.5-3b-GGUF",
+        "quant": "Q4_0",
+        "hub": "HUGGINGFACE",
+        "type": "chat",
+        "runtime": "llama_cpp"
+    },
+    {
+        "id": "dolphin-2.8-mistral-7b-v02-GGUF",
+        "displayName": "Dolphin-2.8-Mistral-7B (GGUF, 无审查)",
+        "modelName": "lmstudio-community/dolphin-2.8-mistral-7b-v02-GGUF",
+        "quant": "Q4_0",
+        "hub": "HUGGINGFACE",
+        "type": "chat",
+        "runtime": "llama_cpp"
+    },
+    {
+        "id": "Qwen2.5-Coder-7B-Instruct-abliterated-GGUF",
+        "displayName": "Qwen2.5-Coder-7B-abliterated (GGUF)",
+        "modelName": "bartowski/Qwen2.5-Coder-7B-Instruct-abliterated-GGUF",
+        "quant": "Q4_0",
+        "hub": "HUGGINGFACE",
+        "type": "chat",
+        "runtime": "llama_cpp"
+    },
+    {
+        "id": "dolphin-2.9-llama3-8b-GGUF",
+        "displayName": "Dolphin-2.9-Llama3-8B (GGUF, 无审查)",
+        "modelName": "bartowski/dolphin-2.9-llama3-8b-GGUF",
+        "quant": "Q4_0",
+        "hub": "HUGGINGFACE",
+        "type": "chat",
+        "runtime": "llama_cpp"
+    },
+    {
+        "id": "Dolphin3.0-Llama3.1-8B-GGUF",
+        "displayName": "Dolphin3.0-Llama3.1-8B (GGUF, 无审查)",
+        "modelName": "bartowski/Dolphin3.0-Llama3.1-8B-GGUF",
+        "quant": "Q4_0",
+        "hub": "HUGGINGFACE",
+        "type": "chat",
+        "runtime": "llama_cpp"
+    },
+    {
+        "id": "Qwen2.5-Coder-14B-Instruct-abliterated-GGUF",
+        "displayName": "Qwen2.5-Coder-14B-abliterated (GGUF)",
+        "modelName": "bartowski/Qwen2.5-Coder-14B-Instruct-abliterated-GGUF",
+        "quant": "Q4_0",
+        "hub": "HUGGINGFACE",
+        "type": "chat",
+        "runtime": "llama_cpp"
     }
 ]

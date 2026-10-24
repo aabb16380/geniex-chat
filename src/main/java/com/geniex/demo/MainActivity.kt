@@ -1401,6 +1401,15 @@ class MainActivity : FragmentActivity() {
             "Qwen2.5-Coder-14B-Instruct-GGUF" to intArrayOf(8, 7, 7, 0),
             "phi-4-GGUF" to intArrayOf(5, 7, 8, 0),
             "gemma-3-4b-it-GGUF" to intArrayOf(6, 6, 5, 0),
+            "Dolphin3.0-Llama3.2-1B-GGUF" to intArrayOf(3, 3, 3, 0),
+            "Dolphin3.0-Qwen2.5-1.5B-GGUF" to intArrayOf(5, 4, 4, 0),
+            "Dolphin3.0-Llama3.2-3B-GGUF" to intArrayOf(4, 5, 5, 0),
+            "Dolphin3.0-Qwen2.5-3b-GGUF" to intArrayOf(6, 5, 5, 0),
+            "dolphin-2.8-mistral-7b-v02-GGUF" to intArrayOf(5, 6, 5, 0),
+            "Qwen2.5-Coder-7B-Instruct-abliterated-GGUF" to intArrayOf(7, 6, 6, 0),
+            "dolphin-2.9-llama3-8b-GGUF" to intArrayOf(5, 6, 5, 0),
+            "Dolphin3.0-Llama3.1-8B-GGUF" to intArrayOf(5, 7, 6, 0),
+            "Qwen2.5-Coder-14B-Instruct-abliterated-GGUF" to intArrayOf(8, 7, 7, 0),
         )
 
     private fun scoresOf(md: ModelData): IntArray = modelScores[md.id] ?: intArrayOf(5, 5, 5, 0)
