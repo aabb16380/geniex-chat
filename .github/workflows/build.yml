@@ -18,8 +18,21 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      # 不再用 android-actions/setup-android@v3：它会安装已下线的 'tools' 包，
+      # 在新版 cmdline-tools 上必然失败。GitHub 托管跑者自带 Android SDK，
+      # 直接用 ANDROID_HOME 即可。
+      - name: Point Gradle at the preinstalled Android SDK
+        run: |
+          set -e
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          if [ -z "$SDK" ]; then
+            echo "::error::ANDROID_HOME / ANDROID_SDK_ROOT is not set on this runner"
+            exit 1
+          fi
+          echo "sdk.dir=$SDK" > local.properties
+          echo "Using SDK: $SDK"
+          ls "$SDK/platforms" || true
+          ls "$SDK/build-tools" || true
 
       - name: Build debug APK
         run: |
