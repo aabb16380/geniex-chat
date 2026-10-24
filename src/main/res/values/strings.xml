@@ -11,6 +11,9 @@
     <string name="ok">确定</string>
     <string name="delete">删除</string>
     <string name="back">返回</string>
+    <string name="refs_button">📚 参考资料（%1$d）</string>
+    <string name="refs_title">参考资料（%1$d 条）</string>
+    <string name="refs_empty">没有找到「%1$s」的正文</string>
     <string name="model_info">详细信息</string>
     <string name="model_info_title">模型能力与占用</string>
 

@@ -43,6 +43,7 @@ enum class MessageType(
     IMAGES(3),
     ASSISTANT_IMAGES(4),
     LOADING(5),
+    REFS(6),
     ;
 
     companion object {
@@ -56,6 +57,7 @@ class ChatAdapter(
     private val messages: List<Message>,
     private val onLongClick: ((Int) -> Unit)? = null,
     private val onItemClick: ((Int) -> Unit)? = null,
+    private val onRefsClick: ((Int) -> Unit)? = null,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var selectionMode = false
         set(value) {
@@ -98,6 +100,10 @@ class ChatAdapter(
                 )
             }
 
+            MessageType.REFS -> {
+                RefsViewHolder(inflater.inflate(R.layout.item_refs_message, parent, false))
+            }
+
             MessageType.LOADING -> {
                 LoadingViewHolder(
                     inflater.inflate(R.layout.item_loading_message, parent, false),
@@ -120,7 +126,8 @@ class ChatAdapter(
             message.type == MessageType.USER ||
                 message.type == MessageType.ASSISTANT
         val tvMsg = holder.itemView.findViewById<android.widget.TextView>(R.id.tv_message)
-        tvMsg?.setTextIsSelectable(!selectionMode)
+        // 参考资料行是按钮，不能开文本选择（会吞掉点击）
+        if (message.type != MessageType.REFS) tvMsg?.setTextIsSelectable(!selectionMode)
         val cb = holder.itemView.findViewById<android.widget.CheckBox>(R.id.cb_select)
         if (cb != null) {
             cb.visibility =
@@ -142,6 +149,10 @@ class ChatAdapter(
         if (holder is AiViewHolder) holder.bind(message, position)
         if (holder is ImagesViewHolder) holder.bind(message)
         if (holder is ProfileViewHolder) holder.bind(message)
+        if (holder is RefsViewHolder) {
+            holder.bind(message) { onRefsClick?.invoke(position) }
+            holder.itemView.setOnClickListener { onRefsClick?.invoke(position) }
+        }
     }
 
     override fun getItemCount() = messages.size
@@ -320,6 +331,25 @@ class ChatAdapter(
             dp: Int,
             context: android.content.Context,
         ): Int = (dp * context.resources.displayMetrics.density).toInt()
+    }
+
+    class RefsViewHolder(
+        itemView: View,
+    ) : RecyclerView.ViewHolder(itemView) {
+        private val tvMessage: TextView = itemView.findViewById(R.id.tv_message)
+
+        fun bind(
+            message: Message,
+            onClick: () -> Unit,
+        ) {
+            tvMessage.setTextIsSelectable(false)
+            tvMessage.isClickable = true
+            val count =
+                runCatching { org.json.JSONArray(message.content).length() }.getOrDefault(0)
+            tvMessage.text =
+                itemView.context.getString(R.string.refs_button, count)
+            tvMessage.setOnClickListener { onClick() }
+        }
     }
 
     class LoadingViewHolder(

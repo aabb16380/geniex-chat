@@ -110,6 +110,9 @@ class MainActivity : FragmentActivity() {
     private var programmaticScroll = false
     private var useContext = true
     private var kbEnabled = false
+
+    /** 最近一次提问命中的知识库条目，回答完成后渲染成「参考资料」行 */
+    private var pendingRefs: List<Pair<String, String>> = emptyList()
     private var userTouchingTs = 0L
     private lateinit var spModelList: Spinner
     private lateinit var btnDownload: Button
@@ -913,6 +916,8 @@ class MainActivity : FragmentActivity() {
 
                 MessageType.PROFILE -> savedTurns.add(SavedMessage("profile", m.content))
 
+                MessageType.REFS -> savedTurns.add(SavedMessage("refs", m.content))
+
                 else -> Unit
             }
         }
@@ -1204,6 +1209,10 @@ class MainActivity : FragmentActivity() {
                     messages.add(Message(turn.content, MessageType.PROFILE))
                 }
 
+                "refs" -> {
+                    messages.add(Message(turn.content, MessageType.REFS))
+                }
+
                 "images" -> {
                     val files = turn.content.split("|").map { java.io.File(it) }.filter { it.exists() }
                     if (files.isNotEmpty()) messages.add(Message("", MessageType.IMAGES, files))
@@ -1235,6 +1244,63 @@ class MainActivity : FragmentActivity() {
     }
 
     /** 濠电姷鏁告慨鐑姐€傞挊澹╋綁宕ㄩ弶鎴濈€銈呯箰閻楀棝鎮為崹顐犱簻闁瑰搫妫楁禍鍓х磼閸撗嗘闁告瑥鍟村畷娲焵椤掍降浜滈柟鐑樺灥閳ь剚鎮傚畷銏ゅ箻椤旂晫鍘搁柣蹇曞仩婵倝宕抽搹鍏夊亾閸偅绶查悗姘煎櫍閸┾偓妞ゆ帒锕︾粔闈浢瑰鍡楃厫缂佸倹甯￠獮姗€顢欓挊澶嗗亾閸偆绠鹃柛顐ｇ箘娴犮垽鏌＄€ｎ偆鈯曠紒缁樼箞閸┾偓妞ゆ帒瀚悞鑲┾偓骞垮劚濡绂掗幒妤佲拺闂傚牊渚楀Σ鎾煛閸涱喚鐭掔€殿喗鐓￠、妤佹媴閻熸澘浼庢繝娈垮枟椤ㄥ懎螞濡や焦娅犳い鏃傛櫕缁犻箖鏌熼崘鎻掓Щ婵炶绠撻幃锟犲即閵忥紕鍘甸梺缁樺灦钃遍柟顖氬缁绘盯宕奸悢鍓叉闂佸搫鏈惄顖炵嵁鐎ｎ喖妫橀柛顭戝枓閹枫倗绱撻崒娆戭槮妞ゆ垵鎳樿棟闂侇剙绉撮悞鍨亜閹烘埊鍔熺紒澶屾暬閺屾稑螣閸忓吋鐝紓?/ 闂傚倸鍊搁崐椋庣矆娓氣偓楠炴牠顢曢妶鍌氫壕婵鍘ф晶顖炴煛閸涙澘鐓愮紒鍌涘笧閳ь剨缍嗛埀顒夊弿闂勫嫰骞堥妸銉庣喖骞愭惔锝冣偓鎰磽娴ｆ彃浜鹃梺绋跨灱閸嬬偤鎮¤箛鎾斀闁绘劙娼ф禍鐐箾閸涱厽鍤囬柡灞剧洴瀵剛鎷犻幓鎺戭潥婵＄偑鍊戦崝濠囧磿閻㈢绠栨繛鍡樺灦瀹曞鏌ц箛鏇熷殌閻㈩垰娼″缁樻媴閾忕懓绗￠梺缁橆殢閸樺墽妲愰悙瀛樺闁告縿鍎插▓鎯р攽閻愬弶顥為柟绋款煼瀹曟劗绱掑Ο鍦畾濡炪倖鐗楃换宥夊吹濞嗘垹纾奸柟鎻掝儔濡绢喚绱掔紒妯兼创妤犵偛顑夐幃娆撳级閹寸媭鏆″┑锛勫亼閸婃牠宕归悽鍛婂亱闁糕剝绋掔粻?*/
+    private fun refsListOf(json: String): List<Pair<String, String>> =
+        runCatching {
+            val arr = org.json.JSONArray(json)
+            (0 until arr.length()).map { i ->
+                val o = arr.getJSONObject(i)
+                o.optString("t") to o.optString("s")
+            }
+        }.getOrDefault(emptyList())
+
+    /** 点「参考资料」：先列出命中的条目，再点进去看正文 */
+    private fun onRefsClick(position: Int) {
+        val msg = messages.getOrNull(position) ?: return
+        val refs = refsListOf(msg.content)
+        if (refs.isEmpty()) return
+        val labels =
+            refs.mapIndexed { i, (title, snip) ->
+                if (snip.isBlank()) "${i + 1}. $title" else "${i + 1}. $title\n${snip.take(70)}"
+            }.toTypedArray()
+        AlertDialog
+            .Builder(this)
+            .setTitle(getString(R.string.refs_title, refs.size))
+            .setItems(labels) { _, which -> showArticleDialog(refs[which].first) }
+            .setNegativeButton(R.string.back, null)
+            .show()
+    }
+
+    /** 从 ZIM 里取整篇正文 */
+    private fun showArticleDialog(title: String) {
+        val body = KnowledgeBase.article(title)
+        if (body.isNullOrBlank()) {
+            Toast.makeText(this, getString(R.string.refs_empty, title), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val tv =
+            TextView(this).apply {
+                text = body
+                textSize = 14f
+                setPadding(dp(16), dp(12), dp(16), dp(12))
+                setTextIsSelectable(true)
+            }
+        val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val scroll = android.widget.ScrollView(this).apply { addView(tv) }
+        box.addView(
+            scroll,
+            LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(420),
+            ),
+        )
+        AlertDialog
+            .Builder(this)
+            .setTitle(title)
+            .setView(box)
+            .setPositiveButton(R.string.back, null)
+            .show()
+    }
+
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     /** 能力 / 参数 / 大小 / 内存 对照表，覆盖 model_list.json 里每个条目。 */
@@ -1584,7 +1650,7 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun initView() {
-        adapter = ChatAdapter(messages, ::onMessageLongClick, ::onMessageClick)
+        adapter = ChatAdapter(messages, ::onMessageLongClick, ::onMessageClick, ::onRefsClick)
         binding.rvChat.adapter = adapter
         binding.rvChat.itemAnimator = null
         binding.rvChat.addOnScrollListener(
@@ -2312,6 +2378,7 @@ class MainActivity : FragmentActivity() {
             // LLM and the VLM path alike.
             pinBottom = true
             scrollToBottom()
+            pendingRefs = emptyList()
 
             val supportFunctionCall = false
             var tools: String? = null
@@ -2424,6 +2491,7 @@ class MainActivity : FragmentActivity() {
                                 .generateStreamFlow(
                                     run {
                                         val hits = if (kbEnabled) KnowledgeBase.search(inputString, 2) else emptyList()
+                                        pendingRefs = hits
                                         val prefix =
                                             if (hits.isEmpty()) {
                                                 ""
@@ -2706,6 +2774,17 @@ class MainActivity : FragmentActivity() {
                     val content = sb.toString()
                     val size = messages.size
                     messages[size - 1] = Message(content, MessageType.ASSISTANT)
+                    if (pendingRefs.isNotEmpty()) {
+                        val refsJson =
+                            org.json.JSONArray().apply {
+                                pendingRefs.forEach { (t, sn) ->
+                                    put(org.json.JSONObject().put("t", t).put("s", sn))
+                                }
+                            }.toString()
+                        messages.add(Message(refsJson, MessageType.REFS))
+                        recordTurn("refs", refsJson)
+                        pendingRefs = emptyList()
+                    }
 
                     val ttft = String.format(Locale.US, "%.2f", streamResult.profile.ttftMs)
                     val promptTokens = streamResult.profile.promptTokens
