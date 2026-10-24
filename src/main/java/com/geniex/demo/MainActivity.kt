@@ -1301,6 +1301,27 @@ class MainActivity : FragmentActivity() {
             .show()
     }
 
+    /** 过滤掉没有正文的命中：只有标题的参考资料会让模型自己编内容 */
+    private fun groundRefs(hits: List<Pair<String, String>>): List<Pair<String, String>> =
+        hits.mapNotNull { (title, snip) ->
+            // 索引给的 snippet 常常只是标题本身，太短就不要，现取正文开头一段
+            val ex = if (snip.length >= 80) snip.take(300) else KnowledgeBase.excerpt(title, 300)
+            if (ex.isBlank()) null else title to ex
+        }
+
+    private fun refsBlockOf(grounded: List<Pair<String, String>>): String =
+        if (grounded.isEmpty()) {
+            ""
+        } else {
+            buildString {
+                append("下面是与问题相关的维基百科资料，只用来帮助作答：\n")
+                grounded.forEach { (title, ex) ->
+                    append("· ").append(title).append("：").append(ex).append('\n')
+                }
+                append("\n请直接回答，不要复述这段资料的格式，也不要编造资料里没有的内容。\n\n")
+            }
+        }
+
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     /** 能力 / 参数 / 大小 / 内存 对照表，覆盖 model_list.json 里每个条目。 */
@@ -2408,12 +2429,18 @@ class MainActivity : FragmentActivity() {
                     streamingSaved = false
                     lastStreamUiTs = 0L
                     if (isLoadVlmModel) {
+                        // VLM 分支同样要挂知识库：资料塞进这条用户文本里，
+                        // 参考资料按钮由公共的 Completed 分支负责渲染。
+                        val kbHits = if (kbEnabled) KnowledgeBase.search(inputString, 2) else emptyList()
+                        val grounded = groundRefs(kbHits)
+                        pendingRefs = grounded
+                        val refsBlock = refsBlockOf(grounded)
                         val contents =
                             savedImageFiles
                                 .map {
                                     VlmContent("image", it.absolutePath)
                                 }.toMutableList()
-                        contents.add(VlmContent("text", inputString))
+                        contents.add(VlmContent("text", refsBlock + inputString))
                         clearImages()
                         val sendMsg = VlmChatMessage(role = "user", contents = contents)
                         vlmChatList.add(sendMsg)
@@ -2466,28 +2493,9 @@ class MainActivity : FragmentActivity() {
                         // 多了一段无归属文本，模型会把对话结构当成没结束，回答完还会自己
                         // 虚构一条用户指令继续往下演。
                         val kbHits = if (kbEnabled) KnowledgeBase.search(inputString, 2) else emptyList()
-                        // 每条参考资料都要有真实摘要：只有标题的空壳会让模型自己编正文，
-                        // 甚至把「【参考资料】/【要求】」这类格式也当成要续写的内容。
-                        val grounded =
-                            kbHits.mapNotNull { (title, snip) ->
-                                // 索引给的 snippet 往往只是标题本身（几十个字符），
-                                // 太短就不要，直接现取正文开头一段，否则模型会自己编内容
-                                val ex = if (snip.length >= 80) snip.take(300) else KnowledgeBase.excerpt(title, 300)
-                                if (ex.isBlank()) null else title to ex
-                            }
+                        val grounded = groundRefs(kbHits)
                         pendingRefs = grounded
-                        val refsBlock =
-                            if (grounded.isEmpty()) {
-                                ""
-                            } else {
-                                buildString {
-                                    append("下面是与问题相关的维基百科资料，只用来帮助作答：\n")
-                                    grounded.forEach { (title, ex) ->
-                                        append("· ").append(title).append("：").append(ex).append('\n')
-                                    }
-                                    append("\n请直接回答，不要复述这段资料的格式，也不要编造资料里没有的内容。\n\n")
-                                }
-                            }
+                        val refsBlock = refsBlockOf(grounded)
                         Log.d(
                             TAG,
                             "KB refs hits=${kbHits.size} grounded=${grounded.size} " +
