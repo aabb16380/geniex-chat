@@ -2460,7 +2460,46 @@ class MainActivity : FragmentActivity() {
                         }
                         chatList.add(ChatMessage(role = "user", sanitizeForSdk(inputString)))
                         // The user turn is already recorded by the common block above.
-                        var trimmed = buildPromptWithTrim(chatList.toList(), tools, enableThinking)
+                        //
+                        // 参考资料必须放进「用户这条消息」里，再整体走 applyChatTemplate。
+                        // 早先是拼在已模板化的 prompt 前面，等于在 <|im_start|>system 之前
+                        // 多了一段无归属文本，模型会把对话结构当成没结束，回答完还会自己
+                        // 虚构一条用户指令继续往下演。
+                        val kbHits = if (kbEnabled) KnowledgeBase.search(inputString, 2) else emptyList()
+                        // 每条参考资料都要有真实摘要：只有标题的空壳会让模型自己编正文，
+                        // 甚至把「【参考资料】/【要求】」这类格式也当成要续写的内容。
+                        val grounded =
+                            kbHits.mapNotNull { (title, snip) ->
+                                // 索引给的 snippet 往往只是标题本身（几十个字符），
+                                // 太短就不要，直接现取正文开头一段，否则模型会自己编内容
+                                val ex = if (snip.length >= 80) snip.take(300) else KnowledgeBase.excerpt(title, 300)
+                                if (ex.isBlank()) null else title to ex
+                            }
+                        pendingRefs = grounded
+                        val refsBlock =
+                            if (grounded.isEmpty()) {
+                                ""
+                            } else {
+                                buildString {
+                                    append("下面是与问题相关的维基百科资料，只用来帮助作答：\n")
+                                    grounded.forEach { (title, ex) ->
+                                        append("· ").append(title).append("：").append(ex).append('\n')
+                                    }
+                                    append("\n请直接回答，不要复述这段资料的格式，也不要编造资料里没有的内容。\n\n")
+                                }
+                            }
+                        Log.d(
+                            TAG,
+                            "KB refs hits=${kbHits.size} grounded=${grounded.size} " +
+                                "block=${refsBlock.length} snips=${kbHits.map { it.second.length }}",
+                        )
+                        fun withRefs(src: List<ChatMessage>): List<ChatMessage> {
+                            if (refsBlock.isEmpty() || src.isEmpty()) return src
+                            val out = src.toMutableList()
+                            out[out.lastIndex] = ChatMessage("user", sanitizeForSdk(refsBlock + inputString))
+                            return out
+                        }
+                        var trimmed = buildPromptWithTrim(withRefs(chatList.toList()), tools, enableThinking)
                         // NPU 闂傚倸鍊搁崐椋庣矆娓氣偓楠炲鏁撻悩鍐蹭罕闂佸搫娲㈤崹鍦不閻樼鍋撻獮鍨姎婵炲眰鍔庣划濠氬籍閸喓鍘遍柣蹇曞仜婢т粙濡撮幒妤佺厓缂備焦蓱椤ュ牓鏌熼绛嬫疁闁轰焦鍔栭幆鏃堝灳閼碱剙鍤梻鍌欐祰椤曆呪偓鍨浮瀹曟娊鏁愭径濠呮憰濠电偞鍨崹鐟版暜闂備線娼ч¨鈧梻鍕瀹曟洟骞樼紒妯锋嫼?4096闂傚倸鍊搁崐鐑芥倿閿旈敮鍋撶粭娑樻噽閻瑩鏌熼悜姗嗘畷闁搞倕鐭傞弻鐔碱敍閸℃瀚伴柡鍛У缁绘繈鎮介棃娴讹綁鏌よぐ鎺旂暫闁诡垰鑻灃闁告侗鍠氶崢鐢电磽閸屾瑧鍔嶉柨姘辩磼閺冣偓閸庢娊婀佸┑鐘才堥崑鎾绘煕濡も偓閸熷潡锝炶箛鏃傜瘈婵﹩鍓涢崝锕€顪冮妶鍡楃瑨閻庢凹鍓涚划缁樺閺夋垹顔愬┑鐑囩秵閸撴瑩鎮為悜妯圭箚鐎瑰壊鍠栭悘锝囩磼鏉堛劍宕岀€规洘甯掗埢搴ㄥ箣閻樻ɑ宀稿娲川婵犱胶绻侀梺鎼炲姂娴滆泛顕ｉ幎鑺ュ亱闁割偁鍨婚鏇㈡⒑閻熼偊鍤熼柛瀣仧娴滄悂顢旈崼鐔哄幈闂侀潧顭堥崕鑼嫻閳╁啩绻嗛柛娆忣槸婵秶鈧鍣崳锝呯暦閻撳簶鏀介柛鈩冪懃缂嶄線姊婚崒娆戠獢闁逞屽墰閸嬫盯鎳熼娑欐珷閻庣數纭堕崑鎾斥枔閸喗鐝梺闈╃秶缂嶄礁鐣峰ú顏呮櫢闁绘灏欓ˇ銊╂⒑閸愬弶鎯堥柛鐕佸灠閳绘捇骞栨担鍏夋嫼闂佸憡绻傜€氬嘲危濞差亝鐓曢幖娣灩婵秶鈧娲樺妯跨亙闂佸憡绮堥悞锕傚疾濠靛洨绡€闂傚牊绋戦埀顒佹倐楠炲鏁撻悩鑼煣?                        // 闂傚倸鍊搁崐椋庣矆娓氣偓楠炲鏁撻悩鍐蹭簻濡炪倖甯掗崐缁樼▔瀹ュ鐓欓弶鍫濆⒔閻ｉ亶鏌涢妸銉モ偓褰掑Φ閸曨垰鍐€闁靛ě鈧Σ鍫濐渻閵堝棙绀夊瀛樻倐楠炲牓濡搁妷顔藉缓闂佺硶鍓濋〃鍛达綖閳轰讲鏀芥い鏇炴閸掔増銇勯敂鐐毈鐎?"context length exceeded"
                         if (isNpu) {
                             var guard = 0
@@ -2468,7 +2507,7 @@ class MainActivity : FragmentActivity() {
                                 trimmed.first.length / 2 + 256 > 4096 - 256 && chatList.size > 2
                             ) {
                                 chatList.subList(0, 2).clear()
-                                trimmed = buildPromptWithTrim(chatList.toList(), tools, enableThinking)
+                                trimmed = buildPromptWithTrim(withRefs(chatList.toList()), tools, enableThinking)
                                 guard++
                             }
                         }
@@ -2489,25 +2528,7 @@ class MainActivity : FragmentActivity() {
                             )
                             llmWrapper
                                 .generateStreamFlow(
-                                    run {
-                                        val hits = if (kbEnabled) KnowledgeBase.search(inputString, 2) else emptyList()
-                                        pendingRefs = hits
-                                        val prefix =
-                                            if (hits.isEmpty()) {
-                                                ""
-                                            } else {
-                                                buildString {
-                                                    append("\u3010\u53C2\u8003\u8D44\u6599\u3011\n")
-                                                    hits.forEach { (title, snip) ->
-                                                        append("\u2022 ").append(title).append("\uFF1A")
-                                                        append(snip.take(280)).append('\n')
-                                                    }
-                                                    append("\n以上为知识库检索结果，仅供参考。")
-                                                }
-                                            }
-                                        Log.i(TAG, "KB hits=${hits.size}")
-                                        sanitizeForSdk(prefix + trimmed.first)
-                                    },
+                                    sanitizeForSdk(trimmed.first),
                                     GenerationConfigSample(
                                         maxTokens = effectiveMaxTokens(trimmed.first.length + 600, isNpu),
                                     ).toGenerationConfig(),
@@ -2718,7 +2739,26 @@ class MainActivity : FragmentActivity() {
                 removeLoadingIndicator()
                 runOnUiThread {
                     rawStreamSb.append(streamResult.text)
-                    val fixed = repairByteLevel(rawStreamSb.toString())
+                    var fixed = repairByteLevel(rawStreamSb.toString())
+                    // 模型偶尔不吐结束符、自己虚构下一轮对话；见到轮次标记就地截断并停流
+                    val endMarkers =
+                        listOf(
+                            "<|im_end|>",
+                            "<\uFF5Cend\u2581of\u2581sentence\uFF5C>",
+                            "<|endoftext|>",
+                            "<|im_start|>",
+                        )
+                    val endIdx = endMarkers.map { fixed.indexOf(it) }.filter { it >= 0 }.minOrNull()
+                    if (endIdx != null) {
+                        fixed = fixed.substring(0, endIdx)
+                        rawStreamSb.setLength(0)
+                        rawStreamSb.append(fixed)
+                        modelScope.launch {
+                            runCatching {
+                                if (isLoadVlmModel) vlmWrapper.stopStream() else llmWrapper.stopStream()
+                            }
+                        }
+                    }
                     sb.setLength(0)
                     sb.append(fixed)
                     streamingText = fixed

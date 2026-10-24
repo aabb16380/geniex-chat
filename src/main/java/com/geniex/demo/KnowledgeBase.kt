@@ -299,6 +299,7 @@ object KnowledgeBase {
     fun article(
         title: String,
         limit: Int = 12000,
+        maxRaw: Int = Int.MAX_VALUE,
     ): String? {
         val a = archive ?: return null
         if (title.isBlank()) return null
@@ -318,7 +319,9 @@ object KnowledgeBase {
             val item = entry?.getItem(true) ?: return null
             val mime = runCatching { item.mimetype }.getOrDefault("")
             val bytes = runCatching { item.data?.data }.getOrNull() ?: return null
-            val raw = String(bytes, Charsets.UTF_8)
+            val full = String(bytes, Charsets.UTF_8)
+            // 只想要开头一段时，先截断 HTML 再解析，避免为了 300 字去解析整页（大条目要好几秒）
+            val raw = if (full.length > maxRaw) full.take(maxRaw) else full
             val text = if (mime.contains("html", ignoreCase = true)) stripHtmlToText(raw) else raw.trim()
             Log.d(TAG, "KB article title=$title mime=$mime raw=${raw.length} text=${text.length}")
             text.take(limit).ifBlank { null }
@@ -326,6 +329,18 @@ object KnowledgeBase {
             Log.e(TAG, "KB article failed: $title", it)
             null
         }
+    }
+
+    /** 取一段摘要给提示词用：正文开头若干字，去掉与标题重复的部分 */
+    @Synchronized
+    fun excerpt(
+        title: String,
+        want: Int = 300,
+    ): String {
+        val body = article(title, limit = want * 6, maxRaw = 60000) ?: return ""
+        val t = body.replace(Regex("\\s+"), " ").trim()
+        val head = if (t.startsWith(title)) t.removePrefix(title).trim() else t
+        return head.take(want)
     }
 
     /**
